@@ -112,5 +112,6 @@ Defined in `C04 Claude Obsidian/CLAUDE.md`. Read it — it's the contract betwee
 
 - [Obsidian](https://obsidian.md) (free)
 - [Claude Code](https://claude.ai/code) (Claude subscription)
+- Optional: [Google Drive](https://drive.google.com) — store the vault inside your Drive folder so it syncs automatically across devices and stays backed up in the cloud
 - Optional: [Granola](https://granola.ai) for meeting processing
 - Optional: Google Calendar MCP for `/create-daily` to pull events
