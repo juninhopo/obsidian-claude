@@ -246,7 +246,7 @@ Three layers govern AI behavior. The global file is just a pointer — everythin
 
 | Layer | Path | Purpose |
 |-------|------|---------|
-| Global pointer | `~/.claude/CLAUDE.md` | One sentence: "read the vault CLAUDE.md". Nothing else. |
+| Global pointer | `~/.claude/CLAUDE.md` | `IMPORTANT:` directive forcing a Read tool call on the vault CLAUDE.md before any action. Minimal — no rules duplicated here. |
 | Vault rules | `C04 Claude Obsidian/CLAUDE.md` | All behavioral rules (librarian, verbatim, pattern capture, project routing) |
 | Per-project | `B01 Projects/<project>/CLAUDE.md` | Conventions, glossary, people, decisions, aliases for that project |
 

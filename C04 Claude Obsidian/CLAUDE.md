@@ -91,7 +91,7 @@ Two layers of CLAUDE.md govern AI behavior. **The global file is just a pointer.
 
 | # | Layer | Path | When loaded | Contains |
 |---|-------|------|-------------|----------|
-| 1 | **Global pointer** | `~/.claude/CLAUDE.md` | Every Claude session, anywhere | One sentence: "read the vault CLAUDE.md". Nothing else. |
+| 1 | **Global pointer** | `~/.claude/CLAUDE.md` | Every Claude session, anywhere | `IMPORTANT:` directive that forces a Read tool call on the vault CLAUDE.md before any action. Minimal — no rules duplicated here. |
 | 2 | **Vault** (this file) | `C04 Claude Obsidian/CLAUDE.md` | Loaded by the pointer or by CWD in vault | All rules: librarian, verbatim, pattern capture, project routing, vault structure |
 | 3 | **Per-project** | `B01 Projects/<project>/CLAUDE.md` | When project is mentioned (see "Project context loading" below) | Conventions, glossary, people, decisions, aliases |
 

@@ -50,14 +50,17 @@ Open the folder as an Obsidian vault.
 
 **3. Set up Claude Code**
 
-Add this to your `~/.claude/CLAUDE.md` (create if it doesn't exist):
+Create `~/.claude/CLAUDE.md` (or add to it if it exists):
 
 ```
-Read this file before acting in this vault:
+IMPORTANT: Before doing ANYTHING else in this session, use the Read tool to load the vault operating rules from the absolute path below. This is mandatory — do not skip, do not summarize from memory, do not proceed until the file is read.
+
 /absolute/path/to/your/vault/C04 Claude Obsidian/CLAUDE.md
+
+That file contains all behavioral rules: what the AI can/can't do, verbatim rule, vault structure, project context loading, and available skills.
 ```
 
-Replace the path with the absolute path to your vault.
+Replace `/absolute/path/to/your/vault` with the actual path to your vault folder.
 
 **4. Run your first command**
 
