@@ -288,6 +288,94 @@ Three layers govern AI behavior. The global file is just a pointer — everythin
 
 ---
 
+## 🔌 MCPs (external integrations)
+
+Some skills depend on **MCP servers** — external tools that Claude Code calls over a standard protocol. They give the AI access to data outside the vault (your meeting recorder, calendar, design tool, etc.) without scripting one-off integrations.
+
+> **The vault doesn't ship with MCPs configured** — they live in your Claude Code config (`~/.claude.json`), not in the vault. You add them once per machine.
+
+### When you need them
+
+| Skill | MCP | Without it |
+|-------|-----|-----------|
+| `/process-meetings` | **Granola** (`https://mcp.granola.ai/mcp`) | Skill aborts — meeting transcripts can't be imported. Granola encrypted its local cache in v7 (May 2026), so the only supported channel is the official MCP. |
+| `/calendar-week`, `/create-daily` (calendar pull) | **Google Calendar** (claude.ai-bundled) | Daily/weekly notes lose calendar event auto-fill |
+
+### Granola — full setup
+
+The most common MCP for this vault. Required by `/process-meetings`.
+
+**1. Add the server (one-time, in a terminal — not inside Claude Code):**
+
+```
+claude mcp add -s user --transport http granola https://mcp.granola.ai/mcp
+```
+
+- `-s user` = global scope (works in any cwd, not just this vault)
+- `--transport http` = Granola uses HTTP streamable
+- No token argument: Granola uses **OAuth 2.0 Dynamic Client Registration**
+
+**2. Restart Claude Code.** Quit (`/exit` or Ctrl+D) and reopen so it picks up the new server.
+
+**3. Authenticate via OAuth:**
+
+```
+/mcp
+```
+
+You'll see `granola` listed as `needs-auth`. Select it → browser opens → log in to your Granola account → authorize → token stored. No manual paste, no env var.
+
+**4. Verify:**
+
+```
+! claude mcp list
+```
+
+Should show `granola: connected (HTTP)`.
+
+Inside Claude Code, the test is:
+
+```
+mcp__granola__get_account_info
+```
+
+Should return your email + active workspace. If that works, `/process-meetings` is ready.
+
+### Generic pattern (any MCP)
+
+For any new MCP server, the workflow is the same shape:
+
+1. **Discover the URL/command** — usually in the vendor's docs (look for "Claude" or "MCP" in their integrations page)
+2. **Add via CLI:**
+   - HTTP: `claude mcp add -s user --transport http <name> <url>`
+   - HTTP with token: `claude mcp add -s user --transport http <name> <url> --header "Authorization: Bearer $TOKEN"`
+   - stdio (local binary): `claude mcp add -s user <name> <command> [args...]`
+3. **Restart** Claude Code
+4. **Auth** — either via `/mcp` (OAuth flow) or by setting an env var/header at add-time
+5. **Verify** — `claude mcp list` + try a tool call
+
+### Troubleshooting MCPs
+
+| Symptom | Probable cause | Fix |
+|---------|----------------|-----|
+| Skill says "MCP not connected" | Server not added, or token expired | `claude mcp list` to confirm; re-add or `/mcp` to re-auth |
+| `claude mcp add` fails | Wrong scope, name collision | Check existing config in `~/.claude.json`; use a fresh `<name>` |
+| OAuth browser doesn't open | Headless / SSH session | Run on a machine with a browser, or use a Bearer token if the vendor offers one |
+| Tool calls 401/403 mid-session | Token revoked or rotated | `/mcp` → re-auth |
+| Some meetings missing after `/process-meetings` | Granola cache stale (rare with MCP), or rate limit | Check log in `C04/03 Logs & Memory/`, retry with `--since` |
+
+### What lives where
+
+| Layer | Location | What's stored |
+|-------|----------|---------------|
+| MCP server config | `~/.claude.json` (`mcpServers` section) | URL, transport, headers, scope |
+| Auth tokens | OS keychain (managed by Claude Code) | Bearer tokens, refresh tokens |
+| Vault | _nothing_ — by design | Vault is portable; MCPs are per-machine |
+
+This is why the vault works on any machine you sync to — but each machine needs its own MCPs added once.
+
+---
+
 ## ⚠️ Anti-patterns
 
 > "Your vault doesn't get smarter on its own."
@@ -332,7 +420,8 @@ Without active maintenance, the system degrades into:
 | Skill behaves differently than docs | Skill file edited locally | Re-read the skill file in `C04/02` |
 | Inbox keeps overflowing | Skipping `/process-inbox` | Schedule `/loop 7d /process-inbox` |
 | Anchor feels stale | Has not been refreshed | `/refresh-anchor <topic>` |
+| `/process-meetings` says "MCP not connected" | Granola MCP not added on this machine | See **MCPs (external integrations)** above |
 
 ---
 
-*Last updated: 2026-04-27*
+*Last updated: 2026-05-09 — added MCPs section (Granola setup) + skill `/process-meetings` migrated from local cache to MCP*
